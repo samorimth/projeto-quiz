@@ -4,7 +4,7 @@
 **Curso:** Sistemas de Informação<br/>
 **Disciplina:** Projeto Integrador II - Meio Ambiente e Sustentabilidade<br/>
 **Professor:** Renata Felipe Silvino<br/>
-**Alunos:** Ana Paula Alves Ritschel, Gedielson José Sanches, Thiago André Silva Amorim, Winnie Dandara Rocha Ferreira<br/>
+**Alunos:** Ana Paula Alves Ritschel, Charles Thales Santos, Gedielson Jose Sanches, Nestor Júnio Almeida Rodrigues, Thiago André Silva Amorim, Winnie Dandara Rocha Ferreira<br/>
 **Ano:** 2025
 
 ---
