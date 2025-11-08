@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Interativo: Eficiência Energética</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* --- Estilo Base e Fundo (Kahoot! Dark Vibe) --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #333333; /* Fundo escuro */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ffffff;
+            text-align: center;
+        }
+        .container {
+            background-color: #222222; /* Fundo do quiz */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            width: 90%;
+            border: 5px solid #4a4a4a;
+        }
+        h1 {
+            color: #FFA000; /* Laranja de destaque */
+            text-shadow: 1px 1px #000000;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        /* --- Tela Inicial e Final --- */
+        #startScreen, #endScreen {
+            padding: 20px;
+        }
+        #playerName {
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            width: 80%;
+            max-width: 300px;
+            font-size: 1.1em;
+            text-align: center;
+            margin-top: 10px;
+            background-color: #444444;
+            color: white;
+        }
+        #finalScore {
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #4CAF50; /* Verde de sucesso */
+        }
+
+        /* --- Área da Pergunta --- */
+        #progress {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #ffffff; /* Branco simples */
+        }
+        .question h3 {
+            background-color: #444444;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.8em;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        /* --- Botões de Opções (Sem Formas Geométricas) --- */
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas */
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .option-button {
+            /* Design simples, cores Kahoot! */
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centraliza o texto */
+            padding: 20px;
+            border-radius: 12px; /* Cantos arredondados, sem formas */
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            transition: background-color 0.2s, transform 0.1s;
+            text-align: center;
+            border: none;
+            outline: none;
+        }
+
+        /* Cores Kahoot! simplificadas */
+        .option-button:nth-child(1) { background-color: #E21B3C; } /* Vermelho */
+        .option-button:nth-child(2) { background-color: #1368CE; } /* Azul */
+        .option-button:nth-child(3) { background-color: #D89E00; } /* Amarelo */
+        .option-button:nth-child(4) { background-color: #26890C; } /* Verde */
+        
+        /* Efeitos */
+        .option-button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .option-button.selected {
+            border: 4px solid white;
+            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        /* --- Feedback e Botões de Ação --- */
+        #feedback {
+            font-size: 1.5em;
+            margin: 25px 0 10px 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #feedback.show { opacity: 1; }
+        .correct { color: #4CAF50; }
+        .incorrect { color: #F44336; }
+
+        .action-button, #startScreen button {
+            background-color: #6a0dad; /* Cor de ação (Roxo) */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.3em;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .action-button:hover, #startScreen button:hover {
+            background-color: #4a0072;
+        }
+        
+        /* Estilo específico para o botão de limpar ranking */
+        #clearRankingButton {
+            background-color: #F44336; /* Vermelho para alerta/limpar */
+            margin-left: 15px;
+        }
+
+        #clearRankingButton:hover {
+            background-color: #D32F2F;
+        }
+
+        /* --- Ranking --- */
+        #ranking {
+            margin-top: 30px;
+            text-align: center;
+        }
+        #ranking h2 {
+            color: #FFA000;
+            margin-bottom: 15px;
+        }
+        #rankingList {
+            list-style: none;
+            padding: 0;
+        }
+        #rankingList li {
+            background-color: #444444;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            border-left: 5px solid #FFA000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💡 Quiz: Eficiência Energética! 💡</h1>
+        <div id="startScreen">
+            <p>Seja bem-vindo(a)! O quiz recompensa quem responde mais **rápido e correto**. ⚡</p>
+            <p>Digite seu nome para começar:</p>
+            <input type="text" id="playerName" placeholder="Seu nome">
+            <br><br>
+            <button class="action-button" onclick="startQuiz()">Iniciar Quiz</button>
+        </div>
+
+        <div id="quizScreen" style="display:none;">
+            <div id="progress"></div>
+            <div id="questionContainer"></div>
+            <div id="feedback"></div>
+        </div>
+
+        <div id="endScreen" style="display:none;">
+            <h2>🏆 Quiz Finalizado! 🏆</h2>
+            <p id="finalScore"></p>
+            <div>
+                <button class="action-button" onclick="window.location.reload()">Jogar Novamente</button>
+                <button class="action-button" id="clearRankingButton" onclick="clearRanking()">Limpar Ranking</button>
+            </div>
+            <div id="ranking">
+                <h2>Ranking Global:</h2>
+                <ol id="rankingList"></ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            // Perguntas originais sobre Economia de Energia
+            { question: "Qual é a principal fonte de consumo de energia em escritórios?", options: ["Impressoras", "Iluminação", "Computadores", "Ar-condicionado"], answer: 3, points: 1000 },
+            { question: "Qual prática ajuda a reduzir o consumo de energia com iluminação?", options: ["Usar lâmpadas incandescentes", "Manter luzes acesas o tempo todo", "Aproveitar luz natural", "Pintar as paredes de cores escuras"], answer: 2, points: 1000 },
+            { question: "O que é um equipamento com selo Procel?", options: ["Consome mais energia", "Tem garantia estendida", "Tem eficiência energética comprovada", "É importado"], answer: 2, points: 1000 },
+            { question: "Qual atitude simples reduz o consumo dos computadores?", options: ["Deixar ligados à noite", "Ativar modo de suspensão", "Aumentar brilho da tela", "Usar protetores de tela animados"], answer: 1, points: 1000 },
+            { question: "Qual é o horário de pico de energia no Brasil?", options: ["Madrugada", "Meio-dia", "Entre 18h e 21h", "Manhã cedo"], answer: 2, points: 1000 },
+            { question: "Qual é a forma mais eficiente de climatizar um escritório?", options: ["Manter o ar-condicionado em 17°C", "Regular a temperatura entre 23°C e 25°C", "Deixar janelas abertas com ar ligado", "Ligar e desligar várias vezes"], answer: 1, points: 1000 },
+            { question: "Como o monitor pode economizar energia?", options: ["Aumentando o brilho", "Desligando quando não estiver em uso", "Deixando em stand-by o dia todo", "Usando fundo de tela claro"], answer: 1, points: 1000 },
+            { question: "O que significa 'eficiência energética'?", options: ["Usar menos energia para mesma tarefa", "Evitar usar eletrônicos", "Reduzir o consumo total", "Aumentar potência dos aparelhos"], answer: 0, points: 1000 },
+            { question: "Por que desligar o computador no fim do expediente é importante?", options: ["Evita superaquecimento", "Economiza energia", "Atualiza o sistema", "Gera relatórios automáticos"], answer: 1, points: 1000 },
+            { question: "Qual tipo de lâmpada é mais eficiente?", options: ["Incandescente", "Halógena", "Fluorescente", "LED"], answer: 3, points: 1000 },
+            { question: "É vantajoso usar tomadas inteligentes?", options: ["Sim, ajudam a cortar o consumo em stand-by", "Não, gastam mais energia", "Apenas em residências", "Só em aparelhos grandes"], answer: 0, points: 1000 },
+            { question: "Qual o impacto de deixar equipamentos em stand-by?", options: ["Nenhum", "Consomem energia desnecessária", "Prolongam a vida útil", "Aumentam a eficiência"], answer: 1, points: 1000 },
+            { question: "O que ajuda a reduzir o uso do ar-condicionado?", options: ["Fechar janelas", "Usar cortinas e ventilação cruzada", "Aumentar a potência", "Ligar ventiladores e ar juntos"], answer: 1, points: 1000 },
+            { question: "Como o layout do escritório pode influenciar o consumo de energia?", options: ["Organizando estações perto da luz natural", "Usando divisórias escuras", "Afastando janelas", "Evitando refletores"], answer: 0, points: 1000 },
+            { question: "Desligar monitores durante reuniões é uma boa prática?", options: ["Sim, reduz consumo", "Não faz diferença", "Pode causar falhas", "Apenas se forem CRT"], answer: 0, points: 1000 },
+            { question: "Qual medida reduz o gasto com impressão?", options: ["Imprimir em alta qualidade", "Usar papel reciclado", "Evitar impressões desnecessárias", "Manter impressora sempre ligada"], answer: 2, points: 1000 },
+            { question: "Por que realizar manutenção nos equipamentos elétricos?", options: ["Evita ruídos", "Melhora eficiência e reduz consumo", "Aumenta o tamanho do aparelho", "Torna mais bonito"], answer: 1, points: 1000 },
+            { question: "O que é o 'consumo fantasma'?", options: ["Energia usada por aparelhos desligados na tomada", "Uso de energia solar", "Falha de medição", "Perda por calor"], answer: 0, points: 1000 },
+            { question: "Como economizar energia nos elevadores?", options: ["Usar escadas quando possível", "Diminuir a velocidade", "Manter luz acesa o tempo todo", "Evitar manutenção"], answer: 0, points: 1000 },
+            { question: "Qual é uma atitude coletiva eficaz para economizar energia?", options: ["Campanhas de conscientização", "Deixar luzes acesas por segurança", "Evitar conversar sobre o tema", "Trocar lâmpadas com pouca frequência"], answer: 0, points: 1000 }
+        ];
+
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let totalScore = 0;
+        let playerName = "";
+        const RANKING_KEY = 'quizRankingDark'; // Chave para o localStorage
+        let ranking = JSON.parse(localStorage.getItem(RANKING_KEY)) || []; 
+        let questionActive = false;
+        let questionStartTime;
+        let totalTimeTaken = 0;
+
+        function startQuiz() {
+            playerName = document.getElementById("playerName").value.trim();
+            if (playerName === "") {
+                alert("Por favor, digite seu nome.");
+                return;
+            }
+
+            // Escolher 12 perguntas aleatórias
+            questions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 12);
+
+            document.getElementById("startScreen").style.display = "none";
+            document.getElementById("quizScreen").style.display = "block";
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endQuiz();
+                return;
+            }
+            
+            questionActive = true;
+            questionStartTime = new Date(); // Inicia a contagem de tempo para a pergunta atual
+            
+            const q = questions[currentQuestionIndex];
+            const container = document.getElementById("questionContainer");
+            
+            document.getElementById("progress").textContent = `Pergunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            
+            // Gerar botões de opção
+            container.innerHTML = `
+                <div class="question">
+                    <h3>${q.question}</h3>
+                </div>
+                <div class="options">
+                    ${q.options.map((opt, i) => 
+                        `<button class="option-button" data-index="${i}" onclick="selectOption(${i}, this)">${opt}</button>`
+                    ).join("")}
+                </div>
+            `;
+            
+            document.getElementById("feedback").textContent = "";
+            document.getElementById("feedback").classList.remove("show", "correct", "incorrect");
+        }
+
+        function selectOption(selectedIndex, buttonElement) {
+            if (!questionActive) return; // Não permite cliques após a resposta
+
+            questionActive = false; // Desativa a questão após a primeira seleção
+            
+            // Calcula o tempo de resposta em segundos
+            const timeTakenMs = new Date() - questionStartTime;
+            const timeTakenSeconds = Math.round(timeTakenMs / 100) / 10; 
+            totalTimeTaken += timeTakenMs; // Soma o tempo total
+
+            // Remove a seleção de todos
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = true; // Desabilita após a escolha
+            });
+
+            // Adiciona o estilo de seleção
+            buttonElement.classList.add('selected');
+
+            handleAnswer(selectedIndex, timeTakenSeconds);
+        }
+
+        function handleAnswer(selectedIndex, timeTakenSeconds) {
+            const q = questions[currentQuestionIndex];
+            const feedback = document.getElementById("feedback");
+            const isCorrect = selectedIndex === q.answer;
+            
+            feedback.classList.add("show");
+            
+            // Revela a resposta correta visualmente (borda verde)
+            const correctButton = document.querySelector(`.option-button[data-index="${q.answer}"]`);
+            if(correctButton) {
+                correctButton.style.border = "4px solid #4CAF50"; 
+                correctButton.style.transform = "scale(1.05)";
+            }
+
+            if (isCorrect) {
+                // Pontuação por rapidez: Max 1500 pontos, Min 1000
+                const timeFactor = Math.max(0, (20 - timeTakenSeconds) / 20); 
+                const pointsGained = Math.round(q.points + (q.points * timeFactor * 0.5)); 
+                
+                totalScore += pointsGained;
+                feedback.textContent = `✅ Correto em ${timeTakenSeconds}s! (+${pointsGained} pontos)`;
+                feedback.classList.add("correct");
+            } else {
+                feedback.textContent = `❌ Incorreto em ${timeTakenSeconds}s.`;
+                feedback.classList.add("incorrect");
+                
+                // Marca o botão selecionado incorretamente com borda vermelha
+                const selectedButton = document.querySelector(`.option-button[data-index="${selectedIndex}"]`);
+                if (selectedButton && selectedButton !== correctButton) {
+                    selectedButton.style.border = "4px solid #F44336";
+                }
+            }
+
+            // Pausa antes de ir para a próxima pergunta
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion();
+                } else {
+                    endQuiz();
+                }
+            }, 3000); // 3 segundos de feedback
+        }
+
+        function endQuiz() {
+            document.getElementById("quizScreen").style.display = "none";
+            document.getElementById("endScreen").style.display = "block";
+            
+            const totalTimeSeconds = Math.round(totalTimeTaken / 1000);
+            document.getElementById("finalScore").textContent = `${playerName}, seu score final foi de ${totalScore} pontos. Seu tempo total foi de ${totalTimeSeconds} segundos.`;
+
+            // Atualiza o ranking: Prioriza Score > Menor Tempo Total
+            ranking.push({ name: playerName, score: totalScore, time: totalTimeSeconds });
+            ranking.sort((a, b) => b.score - a.score || a.time - b.time); 
+            
+            localStorage.setItem(RANKING_KEY, JSON.stringify(ranking));
+
+            updateRankingDisplay();
+        }
+
+        // Função para atualizar a lista do ranking na tela
+        function updateRankingDisplay() {
+            const rankingList = document.getElementById("rankingList");
+            if (ranking.length > 0) {
+                rankingList.innerHTML = ranking.map((r, index) => 
+                    `<li ${index < 3 ? 'style="font-size: 1.2em; font-weight: bold; border-left-color: gold;"' : ''}>
+                        ${index + 1}º. ${r.name} - ${r.score} pontos (${r.time}s)
+                    </li>`
+                ).join("");
+            } else {
+                 rankingList.innerHTML = "<li>Ninguém jogou ainda! Seja o primeiro!</li>";
+            }
+        }
+        
+        // --- NOVO: Função para limpar o ranking ---
+        function clearRanking() {
+            if (confirm("Tem certeza que deseja limpar o Ranking? Esta ação não pode ser desfeita.")) {
+                localStorage.removeItem(RANKING_KEY); // Remove o item do localStorage
+                ranking = []; // Zera a variável local do ranking
+                updateRankingDisplay(); // Atualiza a exibição na tela
+                alert("Ranking limpo com sucesso!");
+            }
+        }
+
+        // Exibe o ranking inicial ao carregar
+        document.addEventListener('DOMContentLoaded', updateRankingDisplay);
+
+    </script>
+</body>
+</html>
