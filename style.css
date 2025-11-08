@@ -1,7 +1,0 @@
-#clearRankingButton {
-    background-color: #F44336; /* Vermelho para alerta/limpar */
-    margin-left: 15px;
-}
-#clearRankingButton:hover {
-    background-color: #D32F2F;
-}
